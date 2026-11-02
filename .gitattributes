@@ -1,4 +1,4 @@
 # Package checksums require byte-identical files on every platform.
-* -text
+* -text whitespace=cr-at-eol
 # Unified diffs contain context lines consisting of a single space.
-*.patch whitespace=-blank-at-eol
+*.patch whitespace=-blank-at-eol,cr-at-eol
