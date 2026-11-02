@@ -1,0 +1,9 @@
+{
+  "name": "TotK Mod Menu",
+  "version": "0.1.0-rc.1",
+  "upstream_tag": "v0.3.1",
+  "upstream_commit": "ab1dee5bdb9089399b2000880eaa8f702a846f89",
+  "platform": "windows-x86_64",
+  "adapter": "totk-1.4.3.json",
+  "status": "release candidate; gameplay regression test required"
+}

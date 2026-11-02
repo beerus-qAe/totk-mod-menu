@@ -1,0 +1,140 @@
+diff --git a/THIRD_PARTY_NOTICES.md b/THIRD_PARTY_NOTICES.md
+index 2d890f9..f0f8eab 100644
+--- a/THIRD_PARTY_NOTICES.md
++++ b/THIRD_PARTY_NOTICES.md
+@@ -103,3 +103,21 @@ folder's `licenses/` and in each component's own folder.
+ | `totk_xlate` (NativeAOT linux-x64 build of `tools/xlate/`, linked with the folder's clang, lld and sysroot) | built by `tools/build_xlate.py --llvm --sysroot` | MIT | `bin/totk_xlate` |
+ | AppImage type-2 runtime (static; includes libfuse and squashfuse), the AppImage's first part; appimagetool packs the folder and is not distributed | https://github.com/AppImage/type2-runtime | MIT; libfuse LGPL-2.1; squashfuse BSD-2-Clause | the AppImage header |
+ | MacNativeGames shader variant list | as in the installer release row above | MIT | `data/shader_list.tsv` |
++
++## Optional private icon-cache tooling
++
++The local icon-cache builder invokes Arm astcenc 5.7.0 (Apache-2.0), from
++https://github.com/ARM-software/astc-encoder/releases/tag/5.7.0, and imports Pillow 13.0.0 (MIT-CMU) and FontTools
++4.68.0 (MIT). These tools live in ignored build folders and are not linked into the runtime. The official Windows
++x64 archive SHA256 used locally is cbde7c78adcc90d0d90ecf10f32d03f3340fbe1720cb6d6c892147d625e74d2d.
++Decoded Nintendo icons remain private game-derived data under build/; no license grant to those assets is implied.
++
++## Mod Menu installer
++
++The standalone Mod Menu installer embeds Arm astcenc 5.7.0's official Windows SSE2
++executable (Apache-2.0), together with its upstream LICENSE.txt. It also embeds the
++prepared Pillow 13.0.0 and FontTools 4.68.0 distributions used by the local icon-cache
++builder. Their distribution metadata and license directories accompany the files.
++The interpreter and compiler come from the player's original setup and are not
++redistributed by this installer. The embedded upstream recomp sources retain the
++MIT license and their existing third-party notices and source license headers.
+diff --git a/runtime/ui/menu.cpp b/runtime/ui/menu.cpp
+index 151354e..98c9016 100644
+--- a/runtime/ui/menu.cpp
++++ b/runtime/ui/menu.cpp
+@@ -33,6 +33,7 @@ static int g_font_bad;
+ #include "ui/amiibo_page.h"
+ #include "ui/binds_page.h"
+ #include "ui/option_rows.h"
++#include "../../modmenu/integration/ui.h"
+ 
+ extern "C" {
+ #include "amiibo.h"
+@@ -98,7 +99,7 @@ extern "C" void menu_toggle(void) {
+ }
+ 
+ // ---- events from the window adapter, queued while the menu is open; the present path hands them to ImGui
+-enum { EV_KEY, EV_POS, EV_BUTTON, EV_WHEEL, EV_FOCUS, EV_MAX = 256 };
++enum { EV_KEY, EV_POS, EV_BUTTON, EV_WHEEL, EV_FOCUS, EV_TEXT16, EV_MAX = 256 };
+ struct Ev { int type, a, b; float x, y; };
+ static PlatMutex ev_lock = PLAT_MUTEX_INIT;
+ static Ev ev_q[EV_MAX];
+@@ -113,6 +114,7 @@ static void push(Ev e) {
+ }
+ 
+ extern "C" void menu_event_key(int key, int down) { push({EV_KEY, key, down, 0, 0}); }
++extern "C" void menu_event_utf16(unsigned code_unit) { push({EV_TEXT16, (int)code_unit, 0, 0, 0}); }
+ extern "C" void menu_event_mouse_pos(float x, float y) { push({EV_POS, 0, 0, x, y}); }
+ extern "C" void menu_event_mouse_button(int button, int down) { push({EV_BUTTON, button, down, 0, 0}); }
+ extern "C" void menu_event_wheel(float dx, float dy) { push({EV_WHEEL, 0, 0, dx, dy}); }
+@@ -129,6 +131,7 @@ static void drain_events(ImGuiIO &io) {
+         const Ev &e = q[i];
+         switch (e.type) {
+         case EV_KEY: io.AddKeyEvent((ImGuiKey)e.a, e.b != 0); break;
++        case EV_TEXT16: io.AddInputCharacterUTF16((ImWchar16)e.a); break;
+         case EV_POS: io.AddMousePosEvent(e.x, e.y); break;
+         case EV_BUTTON: io.AddMouseButtonEvent(e.a, e.b != 0); break;
+         case EV_WHEEL: io.AddMouseWheelEvent(e.x, e.y); break;
+@@ -352,6 +355,9 @@ static int fonts_up(float scale) {
+         mc.FontDataOwnedByAtlas = false;
+         fa->AddFontFromMemoryTTF(data[i], (int)size, 26.0f * scale, &mc, ranges[i].Data);
+     }
++#ifdef ITEM_ICONS_ENABLED
++    item_icons_build(fa);
++#endif
+     vk_queue_lock();   // the upload submits on the queue and waits for it
+     int ok = ImGui_ImplVulkan_CreateFontsTexture();
+     vk_queue_unlock();
+@@ -1131,7 +1137,7 @@ static void layout_menu(uint32_t w, uint32_t h, float scale) {
+     ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize(version).x);
+     ImGui::TextDisabled("%s", version);
+ 
+-    int step = g_modal || binds_modal()                                                                  ? 0
++    int step = g_modal || binds_modal() || items_modal() || ImGui::GetIO().WantTextInput                    ? 0
+              : ImGui::IsKeyPressed(ImGuiKey_GamepadR1, false) || ImGui::IsKeyPressed(ImGuiKey_E, false) ? 1
+              : ImGui::IsKeyPressed(ImGuiKey_GamepadL1, false) || ImGui::IsKeyPressed(ImGuiKey_Q, false) ? -1
+                                                                                                          : 0;
+@@ -1164,6 +1170,7 @@ static void layout_menu(uint32_t w, uint32_t h, float scale) {
+             case TAB_AMIIBO: tab_amiibo(scale); break;
+             case TAB_MENU: tab_menu(scale); break;
+             case TAB_CHEATS:
++                items_button();
+                 if (tab_cheats(scale)) {
+                     restart_rebuild = true;
+                     ImGui::OpenPopup("##restart_confirm");
+@@ -1191,7 +1198,9 @@ static void layout_menu(uint32_t w, uint32_t h, float scale) {
+     if (ImGui::Button(cont, ImVec2(bw, 0))) set_open(0);
+     ImGui::SameLine();
+     if (ImGui::Button(quit, ImVec2(bw, 0))) gfx_window_request_close();
+-    bool was_modal = g_modal || binds_modal();
++    bool item_was_modal = items_modal();
++    items_window(scale);
++    bool was_modal = g_modal || binds_modal() || item_was_modal;
+     if (g_tab != TAB_ADVANCED && g_tab != TAB_CONTROLS) g_modal = false;
+     if (!was_modal && (ImGui::IsKeyPressed(ImGuiKey_Escape, false) || ImGui::IsKeyPressed(ImGuiKey_GamepadFaceRight, false)))
+         set_open(0);
+diff --git a/runtime/ui/menu.h b/runtime/ui/menu.h
+index c68ae9f..9ef08bf 100644
+--- a/runtime/ui/menu.h
++++ b/runtime/ui/menu.h
+@@ -30,6 +30,7 @@ void menu_perf_cycle(void);               // F10: the performance overlay off, f
+ // ---- events from the window adapter, used only while the menu is open. key: an ImGuiKey; coordinates in pixels of the
+ // window's client area, which is the swapchain image.
+ void menu_event_key(int key, int down);
++void menu_event_utf16(unsigned code_unit);
+ void menu_event_mouse_pos(float x, float y);
+ void menu_event_mouse_button(int button, int down);   // 0 left, 1 right, 2 middle
+ void menu_event_wheel(float dx, float dy);
+diff --git a/runtime/ui/menu_win.cpp b/runtime/ui/menu_win.cpp
+index 4d556a3..f521887 100644
+--- a/runtime/ui/menu_win.cpp
++++ b/runtime/ui/menu_win.cpp
+@@ -17,6 +17,8 @@ extern "C" {
+ }
+ 
+ static ImGuiKey key_of(WPARAM vk) {
++    if (vk >= 'A' && vk <= 'Z') return (ImGuiKey)(ImGuiKey_A + vk - 'A');
++    if (vk >= '0' && vk <= '9') return (ImGuiKey)(ImGuiKey_0 + vk - '0');
+     switch (vk) {
+     case VK_UP: return ImGuiKey_UpArrow;
+     case VK_DOWN: return ImGuiKey_DownArrow;
+@@ -43,6 +45,13 @@ static ImGuiKey key_of(WPARAM vk) {
+ extern "C" int menu_window_msg(HWND h, UINT m, WPARAM w, LPARAM l, LRESULT *res) {
+     (void)h;
+     switch (m) {
++    case WM_CHAR:
++        if (menu_is_open()) {
++            menu_event_utf16((unsigned)w);
++            *res = 0;
++            return 1;
++        }
++        return 0;
+     case WM_KEYDOWN:
+     case WM_SYSKEYDOWN:
+         // bit 30: auto-repeat

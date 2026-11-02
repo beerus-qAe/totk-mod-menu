@@ -1,0 +1,5 @@
+# Install with the setup's Python 3.14. Toolchain binaries are supplied separately.
+numpy
+lz4
+Pillow==13.0.0
+fonttools==4.68.0

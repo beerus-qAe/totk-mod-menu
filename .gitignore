@@ -1,0 +1,24 @@
+# Local builds and game-derived data must never enter this public repository.
+build/
+generated/
+profile/
+exefs/
+romfs/
+*.exe
+*.dll
+*.pyd
+*.o
+*.a
+*.bin
+*.rgba
+*.tsv
+*.zip
+*.nsp
+*.xci
+*.nca
+*.keys
+__pycache__/
+*.pyc
+.env
+.env.*
+config.local.toml

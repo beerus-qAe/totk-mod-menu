@@ -1,0 +1,10 @@
+{
+  "setup": {
+    "runtime/libtotkrt.a": "94965e678237f44f0fe78c359f2d893b042a25640f73fdb891dea585c5dfd5ea",
+    "runtime/cpu.h": "71eaa12a792bcd47bbc5dbf83f4f877cc911074afc5dd9ce09a6c9a6aec2b28e",
+    "runtime/host.h": "71294d2ca94e2fb0deee2ec020a0cea6c11d8f9b85f76ec25f14fc1012728585"
+  },
+  "cache": {
+    "gen/layout.json": "6ebad2d30d2f277e9c85b995f611733a18dc0133d63b81a7f193d8bed70db69f"
+  }
+}

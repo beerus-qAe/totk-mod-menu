@@ -1,0 +1,11 @@
+{
+  "build_id": "277178b7dba1b6d4949a84778d4abc58b31b34f5",
+  "offsets": ["0x599670", "0x59c870", "0xaae1f8", "0xc4bf78"],
+  "frame_offset": "0x2db174",
+  "player": {
+    "build_id": "277178b7dba1b6d4949a84778d4abc58b31b34f5",
+    "names": ["0x7002c76d12", "0x700365b3b0"],
+    "rodata": ["0x7002bba000", "0x7003a25d60"],
+    "heap": ["0x130000000", "0x200000000"]
+  }
+}
