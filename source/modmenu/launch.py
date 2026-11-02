@@ -36,7 +36,8 @@ def main():
     # Never copy or overwrite a profile at launch. Each installation owns its profile.
     install = Path(config['install'])
     game = subprocess.Popen([str(out / 'totk.exe'), '--exefs', str(install / 'exefs'),
-                             '--romfs', str(install / 'romfs'), '--profile', str(out / 'profile')], cwd=out)
+                             '--romfs', str(install / 'romfs'), '--profile', str(out / 'profile')], cwd=out,
+                            creationflags=subprocess.CREATE_NO_WINDOW)
     recording = out / 'position-recording'
     recording.mkdir(exist_ok=True)
     with (recording / 'observer.log').open('ab') as log:
@@ -52,4 +53,7 @@ if __name__ == '__main__':
     try:
         main()
     except (ValueError, OSError) as error:
+        if sys.stderr is None:
+            import ctypes
+            ctypes.windll.user32.MessageBoxW(None, 'Nao foi possivel abrir o Mod Menu:\n' + str(error), 'TotK Mod Menu', 0x10)
         sys.exit('Launch blocked: ' + str(error))

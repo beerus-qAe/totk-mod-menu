@@ -5,6 +5,7 @@ No downloads, automatic game extraction or updates to the original install.
 """
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -74,6 +75,7 @@ def main():
         'repo': str(ROOT), 'output': str(out),
     }
     (out / 'release-install.json').write_text(json.dumps(config, indent=2), encoding='utf-8')
+    shutil.copy2(ROOT / 'modmenu/assets/modmenu.ico', out / 'modmenu.ico')
     # Use paths from this machine only in ignored installation output.
     launcher = '@echo off\n"' + sys.executable + '" "' + str(ROOT / 'modmenu/launch.py') + '" "' + str(out / 'release-install.json') + '"\nif errorlevel 1 pause\n'
     (out / 'Abrir Mod Menu.cmd').write_text(launcher, encoding='utf-8')

@@ -43,7 +43,7 @@ def main():
         for path in (deps / name).rglob('*'):
             if path.is_file() and '__pycache__' not in path.parts:
                 files['deps/' + path.relative_to(deps).as_posix()] = path.read_bytes()
-    for name in ('gui.py','worker.py'):
+    for name in ('gui.py','worker.py','shortcuts.py'):
         files[name] = (ROOT / 'modmenu/installer' / name).read_bytes()
     decoder_archive = ROOT / 'build/icon-tools/astcenc.zip'
     if digest(decoder_archive.read_bytes()) != 'cbde7c78adcc90d0d90ecf10f32d03f3340fbe1720cb6d6c892147d625e74d2d':
@@ -66,7 +66,8 @@ def main():
         for name, content in sorted(files.items()):archive.writestr(name,content)
     (out / 'payload_size.h').write_text('#define PAYLOAD_SIZE ' + str(payload.stat().st_size) + '\n')
     manifest = ROOT / 'modmenu/installer/launcher.manifest'
-    (out / 'payload.rc').write_text('101 RCDATA "' + payload.as_posix() + '"\n1 24 "' + manifest.as_posix() + '"\n')
+    icon = ROOT / 'modmenu/assets/modmenu.ico'
+    (out / 'payload.rc').write_text('101 RCDATA "' + payload.as_posix() + '"\n1 24 "' + manifest.as_posix() + '"\n1 ICON "' + icon.as_posix() + '"\n')
     compiler = args.setup / 'llvm/bin/clang.exe'
     resource = out / 'payload.o'
     subprocess.run([str(args.setup / 'llvm/bin/llvm-windres.exe'),str(out / 'payload.rc'),'-O','coff','-o',str(resource)],check=True)

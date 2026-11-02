@@ -13,6 +13,7 @@ from tkinter import filedialog, messagebox, ttk
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from worker import install
+from shortcuts import create_shortcut, open_modmenu
 
 
 class App:
@@ -20,6 +21,9 @@ class App:
         self.root, self.payload = root, payload
         self.events, self.busy, self.receipt = queue.Queue(), False, None
         root.title('Instalar TotK Mod Menu 0.1.0-rc.1')
+        for icon in (payload / 'source/modmenu/assets/modmenu.ico', Path(__file__).resolve().parents[1] / 'assets/modmenu.ico'):
+            if icon.is_file():
+                root.iconbitmap(str(icon)); break
         root.geometry('780x560'); root.minsize(680, 480)
         root.protocol('WM_DELETE_WINDOW', self.close)
         frame = ttk.Frame(root, padding=20); frame.pack(fill='both', expand=True)
@@ -92,14 +96,13 @@ class App:
         self.root.after(100, self.poll)
 
     def save_shortcut(self):
-        target = str(Path(self.receipt['output']) / 'Abrir Mod Menu.cmd').replace("'", "''")
-        script = "$w=New-Object -ComObject WScript.Shell; $s=$w.CreateShortcut([IO.Path]::Combine([Environment]::GetFolderPath('Desktop'),'TotK Mod Menu.lnk')); $s.TargetPath='" + target + "'; $s.WorkingDirectory='" + str(Path(self.receipt['output'])).replace("'", "''") + "'; $s.Save()"
-        result = subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command', script], capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
-        if result.returncode:
+        try:
+            create_shortcut(self.receipt['output'])
+        except (OSError, ValueError, RuntimeError):
             self.text.configure(state='normal'); self.text.insert('end', 'Atalho não criado. Use Abrir Mod Menu ou a pasta indicada no registro.\n'); self.text.configure(state='disabled')
 
     def open_game(self):
-        os.startfile(str(Path(self.receipt['output']) / 'Abrir Mod Menu.cmd'))
+        open_modmenu(self.receipt)
 
     def close(self):
         if self.busy:

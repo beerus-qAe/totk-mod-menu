@@ -4,6 +4,10 @@ Mod independente para o **[TotK Recomp](https://github.com/valentderah/totk-pc-r
 
 **Versão atual: `0.1.0-rc.1` — candidata a lançamento.** Algumas categorias e itens continuam experimentais.
 
+<img src="source/modmenu/assets/modmenu.png" width="96" height="96" alt="Ícone do Mod Menu: baú dourado com símbolo de adicionar">
+
+O instalador, sua janela e o atalho usam um ícone próprio. O atalho abre pelo `pythonw.exe`, sem passar pelo prompt de comando.
+
 > O recomp original é criado e mantido por **[valentderah](https://github.com/valentderah)**. Este projeto acrescenta o Mod Menu e seu instalador; não é uma versão oficial nem possui endosso do projeto original.
 
 ## O que o mod faz

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<title>TotK Mod Menu: chest and add symbol</title>
+<rect x="16" y="16" width="480" height="480" rx="96" fill="#092e2c" stroke="#cba85e" stroke-width="8"/>
+<path d="M80 226 L130 135 H359 L407 226 Z" fill="#f0ce80" stroke="#071f20" stroke-width="12" stroke-linejoin="round"/>
+<path d="M116 212 L148 157 H340 L371 212 Z" fill="#153f38"/>
+<rect x="76" y="240" width="331" height="145" rx="16" fill="#d5a44f" stroke="#071f20" stroke-width="12"/>
+<path d="M102 261 H381 V363 H102 Z" fill="none" stroke="#f0ce80" stroke-width="10"/>
+<path d="M151 247 V378 M332 247 V378" stroke="#8c6530" stroke-width="12"/>
+<rect x="210" y="245" width="64" height="85" rx="12" fill="#092e2c" stroke="#f0ce80" stroke-width="8"/>
+<path d="M242 271 V300" stroke="#f0ce80" stroke-width="13" stroke-linecap="round"/>
+<path d="M194 87 L185 67 M245 78 V53 M295 87 L305 67" stroke="#74dcc0" stroke-width="9" stroke-linecap="round"/>
+<circle cx="388" cy="379" r="84" fill="#11594c" stroke="#e5c987" stroke-width="10"/>
+<path d="M388 338 V420 M347 379 H429" stroke="#a4f4ce" stroke-width="21" stroke-linecap="round"/>
+</svg>

@@ -22,6 +22,14 @@ imports the prior successful Mod Menu profile when available; the original game
 files, executable and saves remain read-only inputs. The successful installation
 pointer is updated only after build and launch-compatibility checks pass.
 
+The original chest/plus icon in `modmenu/assets` is embedded in the native installer
+and used by the Tk window and Desktop shortcut. The multi-size ICO includes 16,
+24, 32, 48, 64, 128 and 256 pixel images. The editable SVG and the deterministic
+Pillow generator contain no game-derived artwork. Shortcuts point to the setup's
+`pythonw.exe` and use the installed ICO explicitly, avoiding a command-prompt icon
+and console window. `tests/modmenu_shortcut_test.py` creates and inspects a real
+Windows shortcut in a temporary workspace, including paths with apostrophes.
+
 The GUI creates a Desktop shortcut and offers to launch the mod. Logs are saved in
 `%LOCALAPPDATA%/TotKModMenu/logs`. Failed attempts are kept for diagnosis and never
 replace the previous successful pointer. Closing the GUI during a build is blocked

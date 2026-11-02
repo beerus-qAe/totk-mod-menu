@@ -91,7 +91,8 @@ class CompatibilityTests(unittest.TestCase):
             with zipfile.ZipFile(archive) as source:
                 for name in source.namelist():
                     self.assertFalse(any(part in ('build', 'generated', 'profile', '__pycache__') for part in Path(name).parts), name)
-                    self.assertNotIn(Path(name).suffix.lower(), ('.exe', '.dll', '.bin', '.rgba', '.png', '.keys', '.tsv'), name)
+                    if name != 'source/modmenu/assets/modmenu.png':
+                        self.assertNotIn(Path(name).suffix.lower(), ('.exe', '.dll', '.bin', '.rgba', '.png', '.keys', '.tsv'), name)
                 source.extractall(package)
             names = ['runtime/ui/menu.cpp', 'runtime/ui/menu.h', 'runtime/ui/menu_win.cpp', 'THIRD_PARTY_NOTICES.md']
             original = subprocess.check_output(['git', 'archive', release['upstream_commit'], *names], cwd=ROOT)

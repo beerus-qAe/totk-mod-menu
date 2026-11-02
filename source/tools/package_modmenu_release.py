@@ -9,15 +9,15 @@ from check_content import problems_for
 ROOT = Path(__file__).resolve().parents[1]
 INTEGRATION = ['runtime/ui/menu.cpp', 'runtime/ui/menu.h', 'runtime/ui/menu_win.cpp', 'THIRD_PARTY_NOTICES.md']
 TOOLS = ['build_modmenu_release.py', 'build_spawn_diagnostic.py', 'item_catalog.py',
-         'make_item_icon_atlas.py', 'player_position_probe.py', 'package_modmenu_release.py', 'check_modmenu_release.py', 'build_modmenu_installer.py']
+         'make_item_icon_atlas.py', 'player_position_probe.py', 'package_modmenu_release.py', 'check_modmenu_release.py', 'build_modmenu_installer.py', 'make_modmenu_icon.py']
 TESTS = ['modmenu_release_test.py', 'apple_request_test.c', 'apple_experiment_test.c',
-         'spawn_menu_test.c', 'beta_catalog_test.c', 'items_window_test.cpp', 'item_icons_test.cpp', 'modmenu_installer_test.py']
+         'spawn_menu_test.c', 'beta_catalog_test.c', 'items_window_test.cpp', 'item_icons_test.cpp', 'modmenu_installer_test.py', 'modmenu_shortcut_test.py']
 
 
 def main():
     release = json.loads((ROOT / 'modmenu/release.json').read_text())
     files = sorted(p for p in (ROOT / 'modmenu').rglob('*')
-                   if p.is_file() and p.suffix in ('.py', '.cpp', '.c', '.h', '.json', '.md', '.txt', '.manifest')
+                   if p.is_file() and p.suffix in ('.py', '.cpp', '.c', '.h', '.json', '.md', '.txt', '.manifest', '.svg', '.png', '.ico')
                    and '__pycache__' not in p.parts)
     files += [ROOT / 'tools' / name for name in TOOLS]
     files += [ROOT / 'tests' / name for name in TESTS]
